@@ -1,19 +1,28 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from "axios";
+import { useEffect, useState } from "react";
 
-interface UseProjectsResult {
+interface UseDocsResult {
   data: any;
   loading: boolean;
   error: string | null;
 }
 
-export const useProjects = (
+/**
+ * Custom hook to fetch Foleon Docs
+ * @param page
+ * @param limit
+ * @param filter
+ * @param orderBy
+ * @param isAuthenticated
+ * @returns
+ */
+export const useDocs = (
   page: number,
   limit: number,
-  filter: string,
+  filter: any[],
   orderBy: string,
   isAuthenticated: boolean
-): UseProjectsResult => {
+): UseDocsResult => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,17 +32,20 @@ export const useProjects = (
 
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('https://api.foleon.com/v2/magazine/title', {
-          params: {
-            page,
-            limit,
-            filter,
-            'order-by': orderBy
+        const response = await axios.get(
+          "https://api.foleon.com/v2/magazine/edition",
+          {
+            params: {
+              page,
+              limit,
+              filter,
+              "order-by": orderBy,
+            },
           }
-        });
+        );
         setData(response.data);
       } catch (err) {
-        setError('Failed to fetch projects');
+        setError("Failed to fetch projects");
       } finally {
         setLoading(false);
       }

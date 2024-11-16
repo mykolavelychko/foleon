@@ -1,11 +1,11 @@
 import "./App.css";
 import { AuthProvider } from "./auth/AuthContext";
-import Projects from "./components/projects/Projects";
+import Documents from "./components/documents/Documents";
 
 function App() {
   return (
     <AuthProvider>
-      <Projects />
+      <Documents />
     </AuthProvider>
   );
 }

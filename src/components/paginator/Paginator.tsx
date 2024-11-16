@@ -4,7 +4,11 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: PaginationProps) => {
   const handlePrevious = () => {
     if (currentPage > 1) {
       onPageChange(currentPage - 1);
@@ -20,16 +24,16 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
   return (
     <div>
       <button onClick={handlePrevious} disabled={currentPage === 1}>
-        Previous
+        &lt;
       </button>
       <span>
         Page {currentPage} of {totalPages}
       </span>
       <button onClick={handleNext} disabled={currentPage === totalPages}>
-        Next
+        &gt;
       </button>
     </div>
   );
-}
+};
 
 export default Pagination;
