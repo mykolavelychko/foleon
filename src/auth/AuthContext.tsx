@@ -10,7 +10,6 @@ import { authenticate } from "./AuthService";
 interface AuthContextType {
   isAuthenticated: boolean;
   loading: boolean;
-  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,13 +33,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
       });
   }, []);
 
-  const logout = () => {
-    sessionStorage.removeItem("authToken");
-    setIsAuthenticated(false);
-  };
-
   return (
-    <AuthContext.Provider value={{ isAuthenticated, loading, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, loading }}>
       {children}
     </AuthContext.Provider>
   );

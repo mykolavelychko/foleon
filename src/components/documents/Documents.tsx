@@ -111,7 +111,7 @@ function Documents() {
         alignItems="center"
         height="100vh"
       >
-        <Spinner size="xl" />
+        <Spinner size="xl" role="status"/>
       </Box>
     );
   }
