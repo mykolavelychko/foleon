@@ -21,11 +21,29 @@ const DocumentTile = ({ doc }) => {
           ></DataListItem>
           <DataListItem
             label="Category"
-            value={doc.category ? <Tag>{doc.category}</Tag> : "-"}
+            value={
+              doc.category ? (
+                <Tag backgroundColor="#242424">{doc.category}</Tag>
+              ) : (
+                "-"
+              )
+            }
           ></DataListItem>
           <DataListItem
             label="Status"
-            value={<Status value="error">{doc.status}</Status>}
+            value={
+              <Status
+                value={
+                  doc.status === "draft"
+                    ? "info"
+                    : doc.status === "published"
+                    ? "success"
+                    : "error"
+                }
+              >
+                {doc.status}
+              </Status>
+            }
           ></DataListItem>
         </DataListRoot>
       </VStack>

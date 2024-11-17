@@ -1,12 +1,15 @@
+import { Provider } from "@/components/ui/provider";
 import "./App.css";
 import { AuthProvider } from "./auth/AuthContext";
 import Documents from "./components/documents/Documents";
 
 function App() {
   return (
-    <AuthProvider>
-      <Documents />
-    </AuthProvider>
+    <Provider>
+      <AuthProvider>
+        <Documents />
+      </AuthProvider>
+    </Provider>
   );
 }
 

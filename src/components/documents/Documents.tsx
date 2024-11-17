@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/ui/empty-state";
 import { Field } from "@/components/ui/field";
 import {
   SelectContent,
@@ -14,14 +15,14 @@ import {
   Input,
   SimpleGrid,
   Spinner,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { LuBookX } from "react-icons/lu";
 import { useAuth } from "../../auth/AuthContext";
 import Pagination from "../paginator/Paginator";
 import { useDocs } from "./Documents.hooks";
 import DocumentTile from "./DocumentTile";
-import { EmptyState } from "@/components/ui/empty-state";
-import { LuBookX } from "react-icons/lu";
 
 const categories = createListCollection({
   items: [
@@ -63,6 +64,8 @@ function Documents() {
 
   const docs = data?._embedded.edition;
   const total = data?.total;
+
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -118,7 +121,7 @@ function Documents() {
   return (
     <Box p={[6, 8]}>
       <Heading as="h1">Foleon Documents</Heading>
-      <Box p="4"></Box>
+      <Box p={[2, 4]}></Box>
       <SimpleGrid columns={[1, 2]} gap="30px">
         <Field label="Name">
           <Input
@@ -129,6 +132,7 @@ function Documents() {
           />
         </Field>
         <SelectRoot
+          variant="subtle"
           collection={categories}
           value={categoryFilterValue}
           onValueChange={(e) => setCategoryFilterValue(e.value)}
@@ -146,7 +150,13 @@ function Documents() {
           </SelectContent>
         </SelectRoot>
       </SimpleGrid>
-      <Box p="4"></Box>
+      <Box p={[2, 4]}></Box>
+      {isMobile && (
+        <>
+          <Pagination currentPage={page} total={total} onPageChange={setPage} />
+          <Box p="2"></Box>
+        </>
+      )}
       {docs.length === 0 && (
         <EmptyState
           icon={<LuBookX />}
@@ -161,7 +171,9 @@ function Documents() {
         ))}
       </SimpleGrid>
       <Box p="4"></Box>
-      <Pagination currentPage={page} total={total} onPageChange={setPage} />
+      {!isMobile && (
+        <Pagination currentPage={page} total={total} onPageChange={setPage} />
+      )}
     </Box>
   );
 }
