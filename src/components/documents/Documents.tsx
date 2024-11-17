@@ -51,16 +51,18 @@ const categories = createListCollection({
 function Documents() {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [page, setPage] = useState<number>(1);
-  const [nameFilterValue, setNameFilterValue] = useState<string>("");
-  const [categoryFilterValue, setCategoryFilterValue] = useState<string[]>();
-  const [debouncedFilter, setDebouncedFilter] = useState<any[]>([]);
+  const [nameFilter, setNameFilter] = useState<string>("");
+  const [debouncedNameFilter, setDebouncedNameFilter] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState<string[]>();
+  const [filters, setFilters] = useState<any[]>([]);
+
   const orderBy = "name";
 
   const {
     data,
     loading: projectsLoading,
     error,
-  } = useDocs(page, debouncedFilter, orderBy, isAuthenticated);
+  } = useDocs(page, filters, orderBy, isAuthenticated);
 
   const docs = data?._embedded.edition;
   const total = data?.total;
@@ -69,32 +71,36 @@ function Documents() {
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      const filters = [];
-      if (nameFilterValue) {
-        filters.push({
-          field: "name",
-          type: "like",
-          value: nameFilterValue,
-        });
-      }
-      if (categoryFilterValue?.[0]) {
-        filters.push({
-          field: "category",
-          type: "eq",
-          value: categoryFilterValue[0],
-        });
-      }
-      setPage(1);
-      setDebouncedFilter(filters);
+      setDebouncedNameFilter(nameFilter);
     }, 500);
 
     return () => {
       clearTimeout(handler);
     };
-  }, [nameFilterValue, categoryFilterValue]);
+  }, [nameFilter]);
+
+  useEffect(() => {
+    const filters = [];
+    if (debouncedNameFilter) {
+      filters.push({
+        field: "name",
+        type: "like",
+        value: debouncedNameFilter,
+      });
+    }
+    if (categoryFilter?.[0]) {
+      filters.push({
+        field: "category",
+        type: "eq",
+        value: categoryFilter[0],
+      });
+    }
+    setPage(1);
+    setFilters(filters);
+  }, [debouncedNameFilter, categoryFilter]);
 
   const onNameFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNameFilterValue(event.target.value);
+    setNameFilter(event.target.value);
   };
 
   if (authLoading || projectsLoading) {
@@ -127,15 +133,15 @@ function Documents() {
           <Input
             variant="subtle"
             placeholder="Filter by name"
-            value={nameFilterValue}
+            value={nameFilter}
             onChange={onNameFilterChange}
           />
         </Field>
         <SelectRoot
           variant="subtle"
           collection={categories}
-          value={categoryFilterValue}
-          onValueChange={(e) => setCategoryFilterValue(e.value)}
+          value={categoryFilter}
+          onValueChange={(e) => setCategoryFilter(e.value)}
         >
           <SelectLabel>Category</SelectLabel>
           <SelectTrigger>
