@@ -1,21 +1,33 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "../../auth/AuthContext";
-import { useDocs } from "./Documents.hooks";
-import Pagination from "../paginator/Paginator";
-import { createListCollection, Input } from "@chakra-ui/react";
+import { Field } from "@/components/ui/field";
 import {
   SelectContent,
   SelectItem,
+  SelectLabel,
   SelectRoot,
   SelectTrigger,
   SelectValueText,
 } from "@/components/ui/select";
+import {
+  Box,
+  createListCollection,
+  Heading,
+  Input,
+  SimpleGrid,
+  Spinner,
+} from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { useAuth } from "../../auth/AuthContext";
+import Pagination from "../paginator/Paginator";
+import { useDocs } from "./Documents.hooks";
+import DocumentTile from "./DocumentTile";
+import { EmptyState } from "@/components/ui/empty-state";
+import { LuBookX } from "react-icons/lu";
 
 const categories = createListCollection({
   items: [
     { label: "All Categories", value: "" },
     { label: "Annual Report", value: "annual_report" },
-    { label: "All Categories", value: "branded_content" },
+    { label: "Branded content", value: "branded_content" },
     { label: "Brochure", value: "brochure" },
     { label: "Case study", value: "case_study" },
     { label: "Customer magazine", value: "customer_magazine" },
@@ -83,7 +95,16 @@ function Documents() {
   };
 
   if (authLoading || projectsLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <Spinner size="xl" />
+      </Box>
+    );
   }
 
   if (!isAuthenticated) {
@@ -95,38 +116,53 @@ function Documents() {
   }
 
   return (
-    <div>
-      <h1>Foleon Docs</h1>
-      <Input
-        placeholder="Filter by name"
-        value={nameFilterValue}
-        onChange={onNameFilterChange}
-      />
+    <Box p={[6, 8]}>
+      <Heading as="h1">Foleon Documents</Heading>
+      <Box p="4"></Box>
+      <SimpleGrid columns={[1, 2]} gap="30px">
+        <Field label="Name">
+          <Input
+            variant="subtle"
+            placeholder="Filter by name"
+            value={nameFilterValue}
+            onChange={onNameFilterChange}
+          />
+        </Field>
+        <SelectRoot
+          collection={categories}
+          value={categoryFilterValue}
+          onValueChange={(e) => setCategoryFilterValue(e.value)}
+        >
+          <SelectLabel>Category</SelectLabel>
+          <SelectTrigger>
+            <SelectValueText placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.items.map((category) => (
+              <SelectItem item={category} key={category.value}>
+                {category.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </SelectRoot>
+      </SimpleGrid>
+      <Box p="4"></Box>
+      {docs.length === 0 && (
+        <EmptyState
+          icon={<LuBookX />}
+          title="Your filter gives no results"
+          description="Try to adjust your filter criteria"
+        />
+      )}
 
-      <SelectRoot
-        collection={categories}
-        value={categoryFilterValue}
-        onValueChange={(e) => setCategoryFilterValue(e.value)}
-      >
-        <SelectTrigger>
-          <SelectValueText placeholder="Select category" />
-        </SelectTrigger>
-        <SelectContent>
-          {categories.items.map((category) => (
-            <SelectItem item={category} key={category.value}>
-              {category.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </SelectRoot>
-
-      <ul>
+      <SimpleGrid columns={[1, null, 2, null, 4]} gap="30px">
         {docs?.map((doc) => (
-          <li key={doc.id}>{doc.name}</li>
+          <DocumentTile doc={doc} key={doc.id} />
         ))}
-      </ul>
+      </SimpleGrid>
+      <Box p="4"></Box>
       <Pagination currentPage={page} total={total} onPageChange={setPage} />
-    </div>
+    </Box>
   );
 }
 
