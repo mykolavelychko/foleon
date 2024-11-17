@@ -1,3 +1,4 @@
+import { PAGE_SIZE } from "@/shared/constants";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -7,18 +8,8 @@ interface UseDocsResult {
   error: string | null;
 }
 
-/**
- * Custom hook to fetch Foleon Docs
- * @param page
- * @param limit
- * @param filter
- * @param orderBy
- * @param isAuthenticated
- * @returns
- */
 export const useDocs = (
   page: number,
-  limit: number,
   filter: any[],
   orderBy: string,
   isAuthenticated: boolean
@@ -37,9 +28,8 @@ export const useDocs = (
           {
             params: {
               page,
-              limit,
+              limit: PAGE_SIZE,
               filter,
-              "order-by": orderBy,
             },
           }
         );
@@ -52,7 +42,7 @@ export const useDocs = (
     };
 
     fetchProjects();
-  }, [page, limit, filter, orderBy, isAuthenticated]);
+  }, [page, filter, orderBy, isAuthenticated]);
 
   return { data, loading, error };
 };

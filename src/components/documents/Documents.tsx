@@ -2,24 +2,55 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../auth/AuthContext";
 import { useDocs } from "./Documents.hooks";
 import Pagination from "../paginator/Paginator";
+import { createListCollection, Input } from "@chakra-ui/react";
+import {
+  SelectContent,
+  SelectItem,
+  SelectRoot,
+  SelectTrigger,
+  SelectValueText,
+} from "@/components/ui/select";
+
+const categories = createListCollection({
+  items: [
+    { label: "All Categories", value: "" },
+    { label: "Annual Report", value: "annual_report" },
+    { label: "All Categories", value: "branded_content" },
+    { label: "Brochure", value: "brochure" },
+    { label: "Case study", value: "case_study" },
+    { label: "Customer magazine", value: "customer_magazine" },
+    { label: "eBook", value: "ebook" },
+    { label: "Event Magazine", value: "event_magazine" },
+    { label: "Manual", value: "manual" },
+    { label: "Member magazine", value: "member_magazine" },
+    { label: "Newsletter", value: "newsletter" },
+    { label: "Pitch document", value: "pitch_deck" },
+    { label: "Presentation", value: "presentation" },
+    { label: "Proposal", value: "proposal" },
+    { label: "Product catalog", value: "product_catalog" },
+    { label: "Report", value: "report" },
+    { label: "Staff magazine", value: "staff_magazine" },
+    { label: "White paper", value: "whitepaper" },
+    { label: "Other", value: "other" },
+  ],
+});
 
 function Documents() {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [page, setPage] = useState<number>(1);
   const [nameFilterValue, setNameFilterValue] = useState<string>("");
-  const [categoryFilterValue, setCategoryFilterValue] = useState<string>("");
+  const [categoryFilterValue, setCategoryFilterValue] = useState<string[]>();
   const [debouncedFilter, setDebouncedFilter] = useState<any[]>([]);
-  const limit = 10;
   const orderBy = "name";
 
   const {
     data,
     loading: projectsLoading,
     error,
-  } = useDocs(page, limit, debouncedFilter, orderBy, isAuthenticated);
+  } = useDocs(page, debouncedFilter, orderBy, isAuthenticated);
 
   const docs = data?._embedded.edition;
-  const totalPages = data?.page_count;
+  const total = data?.total;
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -31,11 +62,11 @@ function Documents() {
           value: nameFilterValue,
         });
       }
-      if (categoryFilterValue) {
+      if (categoryFilterValue?.[0]) {
         filters.push({
           field: "category",
           type: "eq",
-          value: categoryFilterValue,
+          value: categoryFilterValue[0],
         });
       }
       setPage(1);
@@ -49,10 +80,6 @@ function Documents() {
 
   const onNameFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNameFilterValue(event.target.value);
-  };
-
-  const onCategoryFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setCategoryFilterValue(event.target.value);
   };
 
   if (authLoading || projectsLoading) {
@@ -70,43 +97,35 @@ function Documents() {
   return (
     <div>
       <h1>Foleon Docs</h1>
-      <input
-        type="text"
+      <Input
         placeholder="Filter by name"
         value={nameFilterValue}
         onChange={onNameFilterChange}
       />
-      <select value={categoryFilterValue} onChange={onCategoryFilterChange}>
-        <option value="">All Categories</option>
-        <option value="annual_report">Annual Report</option>
-        <option value="branded_content">Branded content</option>
-        <option value="brochure">Brochure</option>
-        <option value="case_study">Case Study</option>
-        <option value="customer_magazine">Customer Magazine</option>
-        <option value="ebook">eBook</option>
-        <option value="event_magazine">Event magazine</option>
-        <option value="manual">Manual</option>
-        <option value="member_magazine">Member Magazine</option>
-        <option value="newsletter">Newsletter</option>
-        <option value="pitch_deck">Pitch Deck</option>
-        <option value="presentation">Presentation</option>
-        <option value="proposal">Proposal</option>
-        <option value="product_catalog">Product catalog</option>
-        <option value="report">Report</option>
-        <option value="staff_magazine">Staff Magazine</option>
-        <option value="whitepaper">White Paper</option>
-        <option value="other">Other</option>
-      </select>
+
+      <SelectRoot
+        collection={categories}
+        value={categoryFilterValue}
+        onValueChange={(e) => setCategoryFilterValue(e.value)}
+      >
+        <SelectTrigger>
+          <SelectValueText placeholder="Select category" />
+        </SelectTrigger>
+        <SelectContent>
+          {categories.items.map((category) => (
+            <SelectItem item={category} key={category.value}>
+              {category.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </SelectRoot>
+
       <ul>
         {docs?.map((doc) => (
           <li key={doc.id}>{doc.name}</li>
         ))}
       </ul>
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
+      <Pagination currentPage={page} total={total} onPageChange={setPage} />
     </div>
   );
 }
