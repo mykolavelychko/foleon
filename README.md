@@ -8,7 +8,6 @@ Welcome to the Foleon assignment project! This README will help you get started 
 - [Installation](#installation)
 - [Usage](#usage)
 - [Testing](#testing)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Introduction
