@@ -49,20 +49,14 @@ const categories = createListCollection({
 });
 
 function Documents() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [page, setPage] = useState<number>(1);
   const [nameFilter, setNameFilter] = useState<string>("");
   const [debouncedNameFilter, setDebouncedNameFilter] = useState<string>("");
   const [categoryFilter, setCategoryFilter] = useState<string[]>();
-  const [filters, setFilters] = useState<any[]>([]);
+  const [filters, setFilters] = useState([]);
 
-  const orderBy = "name";
-
-  const {
-    data,
-    loading: projectsLoading,
-    error,
-  } = useDocs(page, filters, orderBy, isAuthenticated);
+  const { data, loading, error } = useDocs(page, filters, isAuthenticated);
 
   const docs = data?._embedded.edition;
   const total = data?.total;
@@ -103,7 +97,7 @@ function Documents() {
     setNameFilter(event.target.value);
   };
 
-  if (authLoading || projectsLoading) {
+  if (!isAuthenticated) {
     return (
       <Box
         display="flex"
@@ -111,13 +105,9 @@ function Documents() {
         alignItems="center"
         height="100vh"
       >
-        <Spinner size="xl" role="status"/>
+        Not authenticated
       </Box>
     );
-  }
-
-  if (!isAuthenticated) {
-    return <div>Not authenticated</div>;
   }
 
   if (error) {
@@ -157,20 +147,22 @@ function Documents() {
         </SelectRoot>
       </SimpleGrid>
       <Box p={[2, 4]}></Box>
+      {loading && (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+        >
+          <Spinner size="xl" role="status" />
+        </Box>
+      )}
       {isMobile && (
         <>
           <Pagination currentPage={page} total={total} onPageChange={setPage} />
           <Box p="2"></Box>
         </>
       )}
-      {docs.length === 0 && (
-        <EmptyState
-          icon={<LuBookX />}
-          title="Your filter gives no results"
-          description="Try to adjust your filter criteria"
-        />
-      )}
-
       <SimpleGrid columns={[1, null, 2, null, 4]} gap="30px">
         {docs?.map((doc) => (
           <DocumentTile doc={doc} key={doc.id} />
@@ -179,6 +171,14 @@ function Documents() {
       <Box p="4"></Box>
       {!isMobile && (
         <Pagination currentPage={page} total={total} onPageChange={setPage} />
+      )}
+
+      {docs?.length === 0 && (
+        <EmptyState
+          icon={<LuBookX />}
+          title="Your filter gives no results"
+          description="Try to adjust your filter criteria"
+        />
       )}
     </Box>
   );

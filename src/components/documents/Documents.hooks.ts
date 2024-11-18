@@ -11,11 +11,10 @@ interface UseDocsResult {
 export const useDocs = (
   page: number,
   filter: any[],
-  orderBy: string,
   isAuthenticated: boolean
 ): UseDocsResult => {
   const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,6 +22,7 @@ export const useDocs = (
 
     const fetchProjects = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(
           "https://api.foleon.com/v2/magazine/edition",
           {
@@ -42,7 +42,7 @@ export const useDocs = (
     };
 
     fetchProjects();
-  }, [page, filter, orderBy, isAuthenticated]);
+  }, [page, filter, isAuthenticated]);
 
   return { data, loading, error };
 };
