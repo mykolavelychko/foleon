@@ -18,7 +18,7 @@ export const authenticate = async ({login, password}: {login: string, password: 
 
     const { access_token } = response.data;
     return access_token;
-  } catch (error) {
+  } catch {
     throw new Error('Authentication failed. Please check your credentials and try again.');
   }
 };

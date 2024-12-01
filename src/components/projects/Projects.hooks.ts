@@ -1,4 +1,5 @@
 import { PAGE_SIZE } from "@/shared/constants";
+import { FilterByNameType } from "@/shared/filter-by-name/FilterByName";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -10,10 +11,10 @@ interface UseDocsResult {
 
 export const useProjects = (
   page: number,
-  filter: any[],
+  filter: FilterByNameType[],
   isAuthenticated: boolean
 ): UseDocsResult => {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +35,7 @@ export const useProjects = (
           }
         );
         setData(response.data);
-      } catch (err) {
+      } catch {
         setError("Failed to fetch projects");
       } finally {
         setLoading(false);

@@ -1,23 +1,8 @@
 import { EmptyState } from "@/components/ui/empty-state";
-import { Field } from "@/components/ui/field";
-import {
-  SelectContent,
-  SelectItem,
-  SelectLabel,
-  SelectRoot,
-  SelectTrigger,
-  SelectValueText,
-} from "@/components/ui/select";
 import ErrorState from "@/shared/ErrorState";
-import {
-  Box,
-  createListCollection,
-  Heading,
-  Input,
-  SimpleGrid,
-  Spinner,
-  useBreakpointValue,
-} from "@chakra-ui/react";
+import { FilterByCategory, FilterByCategoryType } from "@/shared/filter-by-category/FilterByCategory";
+import { FilterByName, FilterByNameType } from "@/shared/filter-by-name/FilterByName";
+import { Box, Heading, SimpleGrid, Spinner, useBreakpointValue } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { LuBookX } from "react-icons/lu";
 import { useAuth } from "../../auth/AuthContext";
@@ -25,37 +10,14 @@ import DataTile from "../../shared/data-tile/DataTile";
 import Pagination from "../paginator/Paginator";
 import { useDocs } from "./Documents.hooks";
 
-const categories = createListCollection({
-  items: [
-    { label: "All Categories", value: "" },
-    { label: "Annual Report", value: "annual_report" },
-    { label: "Branded content", value: "branded_content" },
-    { label: "Brochure", value: "brochure" },
-    { label: "Case study", value: "case_study" },
-    { label: "Customer magazine", value: "customer_magazine" },
-    { label: "eBook", value: "ebook" },
-    { label: "Event Magazine", value: "event_magazine" },
-    { label: "Manual", value: "manual" },
-    { label: "Member magazine", value: "member_magazine" },
-    { label: "Newsletter", value: "newsletter" },
-    { label: "Pitch document", value: "pitch_deck" },
-    { label: "Presentation", value: "presentation" },
-    { label: "Proposal", value: "proposal" },
-    { label: "Product catalog", value: "product_catalog" },
-    { label: "Report", value: "report" },
-    { label: "Staff magazine", value: "staff_magazine" },
-    { label: "White paper", value: "whitepaper" },
-    { label: "Other", value: "other" },
-  ],
-});
-
+// TODO: add "Project" filter
+// TODO: save filters in the URL
 function Documents() {
   const { isAuthenticated } = useAuth();
   const [page, setPage] = useState<number>(1);
-  const [nameFilter, setNameFilter] = useState<string>("");
-  const [debouncedNameFilter, setDebouncedNameFilter] = useState<string>("");
-  const [categoryFilter, setCategoryFilter] = useState<string[]>();
-  const [filters, setFilters] = useState([]);
+  const [nameFilter, setNameFilter] = useState<FilterByNameType | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<FilterByCategoryType | null>();
+  const [filters, setFilters] = useState<(FilterByNameType | FilterByCategoryType)[]>([]);
 
   const { data, loading, error } = useDocs(page, filters, isAuthenticated);
 
@@ -65,38 +27,16 @@ function Documents() {
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedNameFilter(nameFilter);
-    }, 500);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [nameFilter]);
-
-  useEffect(() => {
     const filters = [];
-    if (debouncedNameFilter) {
-      filters.push({
-        field: "name",
-        type: "like",
-        value: debouncedNameFilter,
-      });
+    if (nameFilter) {
+      filters.push(nameFilter);
     }
-    if (categoryFilter?.[0]) {
-      filters.push({
-        field: "category",
-        type: "eq",
-        value: categoryFilter[0],
-      });
+    if (categoryFilter) {
+      filters.push(categoryFilter);
     }
     setPage(1);
     setFilters(filters);
-  }, [debouncedNameFilter, categoryFilter]);
-
-  const onNameFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNameFilter(event.target.value);
-  };
+  }, [nameFilter, categoryFilter]);
 
   if (error) {
     return <ErrorState>{error}</ErrorState>;
@@ -107,41 +47,12 @@ function Documents() {
       <Heading as="h1">Foleon Documents</Heading>
       <Box p={[2, 4]}></Box>
       <SimpleGrid columns={[1, 2]} gap="30px">
-        <Field label="Name">
-          <Input
-            variant="subtle"
-            placeholder="Filter by name"
-            value={nameFilter}
-            onChange={onNameFilterChange}
-          />
-        </Field>
-        <SelectRoot
-          variant="subtle"
-          collection={categories}
-          value={categoryFilter}
-          onValueChange={(e) => setCategoryFilter(e.value)}
-        >
-          <SelectLabel>Category</SelectLabel>
-          <SelectTrigger>
-            <SelectValueText placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.items.map((category) => (
-              <SelectItem item={category} key={category.value}>
-                {category.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </SelectRoot>
+        <FilterByName onFilterChange={setNameFilter} />
+        <FilterByCategory onFilterChange={setCategoryFilter} />
       </SimpleGrid>
       <Box p={[2, 4]}></Box>
       {loading && (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height="100vh"
-        >
+        <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
           <Spinner size="xl" role="status" />
         </Box>
       )}
@@ -149,11 +60,7 @@ function Documents() {
         <>
           {isMobile && (
             <>
-              <Pagination
-                currentPage={page}
-                total={total}
-                onPageChange={setPage}
-              />
+              <Pagination currentPage={page} total={total} onPageChange={setPage} />
               <Box p="2"></Box>
             </>
           )}
@@ -163,13 +70,7 @@ function Documents() {
             ))}
           </SimpleGrid>
           <Box p="4"></Box>
-          {!isMobile && (
-            <Pagination
-              currentPage={page}
-              total={total}
-              onPageChange={setPage}
-            />
-          )}
+          {!isMobile && <Pagination currentPage={page} total={total} onPageChange={setPage} />}
 
           {docs?.length === 0 && (
             <EmptyState

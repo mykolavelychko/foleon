@@ -1,13 +1,7 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
 import LoginDialog from "@/components/LoginDialog";
-import axios from "axios";
 import { Box } from "@chakra-ui/react";
+import axios from "axios";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -34,7 +28,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     const interceptor = axios.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response && error.response.status === 401 || error.response.status === 403) {
+        if ((error.response && error.response.status === 401) || error.response.status === 403) {
           initiateLogin();
         }
         return Promise.reject(error);
@@ -79,12 +73,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
       {isAuthenticated ? (
         children
       ) : (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height="100vh"
-        >
+        <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
           Not authenticated
         </Box>
       )}

@@ -1,26 +1,32 @@
 import { EmptyState } from "@/components/ui/empty-state";
-import {
-  Box,
-  Heading,
-  SimpleGrid,
-  Spinner,
-  useBreakpointValue,
-} from "@chakra-ui/react";
-import { useState } from "react";
+import ErrorState from "@/shared/ErrorState";
+import { FilterByName, FilterByNameType } from "@/shared/filter-by-name/FilterByName";
+import { Box, Heading, SimpleGrid, Spinner, useBreakpointValue } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { LuBookX } from "react-icons/lu";
 import { useAuth } from "../../auth/AuthContext";
+import DataTile from "../../shared/data-tile/DataTile";
 import Pagination from "../paginator/Paginator";
 import { useProjects } from "./Projects.hooks";
-import DataTile from "../../shared/data-tile/DataTile";
-import ErrorState from "@/shared/ErrorState";
 
+// TODO: add "onClick" for the project tile, redirect to the projects page with defined "Project" filter
 function Projects() {
   const { isAuthenticated } = useAuth();
   const isMobile = useBreakpointValue({ base: true, md: false });
   const [page, setPage] = useState<number>(1);
-  const [filters, setFilters] = useState([]);
+  const [filters, setFilters] = useState<FilterByNameType[]>([]);
+  const [nameFilter, setNameFilter] = useState<FilterByNameType | null>(null);
 
   const { data, loading, error } = useProjects(page, filters, isAuthenticated);
+
+  useEffect(() => {
+    const filters = [];
+    if (nameFilter) {
+      filters.push(nameFilter);
+    }
+    setPage(1);
+    setFilters(filters);
+  }, [nameFilter]);
 
   const projects = data?._embedded.title;
   const total = data?.total;
@@ -33,14 +39,10 @@ function Projects() {
     <Box p={[6, 8]}>
       <Heading as="h1">Foleon Projects</Heading>
       <Box p={[2, 4]}></Box>
+      <FilterByName onFilterChange={setNameFilter} />
       <Box p={[2, 4]}></Box>
       {loading && (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height="50vh"
-        >
+        <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
           <Spinner size="xl" role="status" />
         </Box>
       )}
@@ -48,11 +50,7 @@ function Projects() {
         <>
           {isMobile && (
             <>
-              <Pagination
-                currentPage={page}
-                total={total}
-                onPageChange={setPage}
-              />
+              <Pagination currentPage={page} total={total} onPageChange={setPage} />
               <Box p="2"></Box>
             </>
           )}
@@ -62,13 +60,7 @@ function Projects() {
             ))}
           </SimpleGrid>
           <Box p="4"></Box>
-          {!isMobile && (
-            <Pagination
-              currentPage={page}
-              total={total}
-              onPageChange={setPage}
-            />
-          )}
+          {!isMobile && <Pagination currentPage={page} total={total} onPageChange={setPage} />}
 
           {projects?.length === 0 && (
             <EmptyState

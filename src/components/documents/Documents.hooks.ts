@@ -1,4 +1,6 @@
 import { PAGE_SIZE } from "@/shared/constants";
+import { FilterByCategoryType } from "@/shared/filter-by-category/FilterByCategory";
+import { FilterByNameType } from "@/shared/filter-by-name/FilterByName";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -10,10 +12,10 @@ interface UseDocsResult {
 
 export const useDocs = (
   page: number,
-  filter: any[],
+  filter: (FilterByNameType | FilterByCategoryType)[],
   isAuthenticated: boolean
 ): UseDocsResult => {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,18 +25,15 @@ export const useDocs = (
     const fetchDocs = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          "https://api.foleon.com/v2/magazine/edition",
-          {
-            params: {
-              page,
-              limit: PAGE_SIZE,
-              filter,
-            },
-          }
-        );
+        const response = await axios.get("https://api.foleon.com/v2/magazine/edition", {
+          params: {
+            page,
+            limit: PAGE_SIZE,
+            filter,
+          },
+        });
         setData(response.data);
-      } catch (err) {
+      } catch {
         setError("Failed to fetch projects");
       } finally {
         setLoading(false);

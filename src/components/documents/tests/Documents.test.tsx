@@ -76,13 +76,6 @@ describe("Documents", () => {
       expect(screen.getByText("Failed to fetch documents")).toBeInTheDocument();
     });
 
-    test('renders "Not authenticated" message when not authenticated', () => {
-      mockUseAuth.mockReturnValue({
-        isAuthenticated: false,
-      });
-      renderWithProviders(<Documents />);
-      expect(screen.getByText("Not authenticated")).toBeInTheDocument();
-    });
   });
 
   beforeEach(() => {
@@ -94,6 +87,7 @@ describe("Documents", () => {
 
     mockUseAuth.mockReturnValue({
       isAuthenticated: true,
+      setToken: vi.fn(),
     });
 
     renderWithProviders(<Documents />);
