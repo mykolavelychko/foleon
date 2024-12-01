@@ -8,7 +8,7 @@ interface UseDocsResult {
   error: string | null;
 }
 
-export const useDocs = (
+export const useProjects = (
   page: number,
   filter: any[],
   isAuthenticated: boolean
@@ -20,11 +20,11 @@ export const useDocs = (
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const fetchDocs = async () => {
+    const fetchProjects = async () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          "https://api.foleon.com/v2/magazine/edition",
+          "https://api.foleon.com/v2/magazine/title",
           {
             params: {
               page,
@@ -41,7 +41,7 @@ export const useDocs = (
       }
     };
 
-    fetchDocs();
+    fetchProjects();
   }, [page, filter, isAuthenticated]);
 
   return { data, loading, error };

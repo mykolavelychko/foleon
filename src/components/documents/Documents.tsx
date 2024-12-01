@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValueText,
 } from "@/components/ui/select";
+import ErrorState from "@/shared/ErrorState";
 import {
   Box,
   createListCollection,
@@ -20,9 +21,9 @@ import {
 import { useEffect, useState } from "react";
 import { LuBookX } from "react-icons/lu";
 import { useAuth } from "../../auth/AuthContext";
+import DataTile from "../../shared/data-tile/DataTile";
 import Pagination from "../paginator/Paginator";
 import { useDocs } from "./Documents.hooks";
-import DocumentTile from "./DocumentTile";
 
 const categories = createListCollection({
   items: [
@@ -97,21 +98,8 @@ function Documents() {
     setNameFilter(event.target.value);
   };
 
-  if (!isAuthenticated) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-      >
-        Not authenticated
-      </Box>
-    );
-  }
-
   if (error) {
-    return <div>{error}</div>;
+    return <ErrorState>{error}</ErrorState>;
   }
 
   return (
@@ -157,28 +145,40 @@ function Documents() {
           <Spinner size="xl" role="status" />
         </Box>
       )}
-      {isMobile && (
+      {!loading && (
         <>
-          <Pagination currentPage={page} total={total} onPageChange={setPage} />
-          <Box p="2"></Box>
-        </>
-      )}
-      <SimpleGrid columns={[1, null, 2, null, 4]} gap="30px">
-        {docs?.map((doc) => (
-          <DocumentTile doc={doc} key={doc.id} />
-        ))}
-      </SimpleGrid>
-      <Box p="4"></Box>
-      {!isMobile && (
-        <Pagination currentPage={page} total={total} onPageChange={setPage} />
-      )}
+          {isMobile && (
+            <>
+              <Pagination
+                currentPage={page}
+                total={total}
+                onPageChange={setPage}
+              />
+              <Box p="2"></Box>
+            </>
+          )}
+          <SimpleGrid columns={[1, null, 2, null, 4]} gap="30px">
+            {docs?.map((doc) => (
+              <DataTile data={doc} key={doc.id} />
+            ))}
+          </SimpleGrid>
+          <Box p="4"></Box>
+          {!isMobile && (
+            <Pagination
+              currentPage={page}
+              total={total}
+              onPageChange={setPage}
+            />
+          )}
 
-      {docs?.length === 0 && (
-        <EmptyState
-          icon={<LuBookX />}
-          title="Your filter gives no results"
-          description="Try to adjust your filter criteria"
-        />
+          {docs?.length === 0 && (
+            <EmptyState
+              icon={<LuBookX />}
+              title="Your filter gives no results"
+              description="Try to adjust your filter criteria"
+            />
+          )}
+        </>
       )}
     </Box>
   );

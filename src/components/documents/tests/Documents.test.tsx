@@ -79,7 +79,6 @@ describe("Documents", () => {
     test('renders "Not authenticated" message when not authenticated', () => {
       mockUseAuth.mockReturnValue({
         isAuthenticated: false,
-        loading: false,
       });
       renderWithProviders(<Documents />);
       expect(screen.getByText("Not authenticated")).toBeInTheDocument();
@@ -95,7 +94,6 @@ describe("Documents", () => {
 
     mockUseAuth.mockReturnValue({
       isAuthenticated: true,
-      loading: false,
     });
 
     renderWithProviders(<Documents />);

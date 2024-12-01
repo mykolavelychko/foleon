@@ -1,13 +1,13 @@
 import { Provider } from "@/components/ui/provider";
+import { AuthProvider } from "../auth/AuthContext";
 import "./App.css";
-import { AuthProvider } from "./auth/AuthContext";
-import Documents from "./components/documents/Documents";
+import AppRouter from "./AppRouter";
 
 function App() {
   return (
     <Provider>
       <AuthProvider>
-        <Documents />
+        <AppRouter />
       </AuthProvider>
     </Provider>
   );
